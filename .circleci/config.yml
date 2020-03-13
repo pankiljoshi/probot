@@ -17,9 +17,6 @@ jobs:
       # - image: circleci/mysql:5.7-ram
       #
       # - image: redis:2.8.19
-    environment: 
-      DB_CONNECTION: sqlite
-      DB_DATABASE: storage/testing.sqlite
 
     steps:
       - checkout
@@ -36,6 +33,7 @@ jobs:
             - v1-dependencies-
 
       - run: composer install -n --prefer-dist
+      - run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       - run: php artisan key:generate
       - save_cache:
           key: v1-dependencies-{{ checksum "composer.json" }}
@@ -52,9 +50,13 @@ jobs:
             - node_modules
       # prepare the database
       - run: touch storage/testing.sqlite
-      - run: php artisan migrate --env=testing --database=sqlite --force
 
       # run tests with phpunit or codecept
-      - run: ./vendor/bin/phpunit
+      - run: 
+          name: Execute tests (Unit and Feature tests) via PHPUnit
+          environment: 
+            DB_CONNECTION: sqlite
+            DB_DATABASE: storage/testing.sqlite
+          command: ./vendor/bin/phpunit
       # - run: ./vendor/bin/codecept build
       # - run: ./vendor/bin/codecept run
