@@ -36,7 +36,7 @@ jobs:
             - v1-dependencies-
 
       - run: composer install -n --prefer-dist
-
+      - run: php artisan key:generate
       - save_cache:
           key: v1-dependencies-{{ checksum "composer.json" }}
           paths:
@@ -50,7 +50,6 @@ jobs:
           key: node-v1-{{ checksum "package.json" }}
           paths:
             - node_modules
-
       # prepare the database
       - run: touch storage/testing.sqlite
       - run: php artisan migrate --env=testing --database=sqlite --force
